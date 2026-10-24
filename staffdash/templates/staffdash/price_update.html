@@ -1,0 +1,26 @@
+{% extends 'staffdash/base_staff.html' %}
+{% load core_extras %}
+{% block title %}Price: {{ record.title }}{% endblock %}
+{% block staff_content %}
+  <h1 class="h2 mb-1">{{ record.title }}</h1>
+  <p class="text-body-secondary">{{ record.artist.name }} &middot; {{ record.get_format_display }} &middot; {{ record.condition }}</p>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <form method="post" class="card card-body panel" novalidate>
+        <h2 class="h5">Change price</h2>
+        <p>Current price: <strong class="fs-4">{{ record.price|currency }}</strong></p>
+        {% csrf_token %}
+        {% include 'core/includes/form_fields.html' %}
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary">Save price</button>
+          <a href="{% url 'staffdash:pricing' %}" class="btn btn-link">Back to pricing</a>
+        </div>
+      </form>
+    </div>
+    <div class="col-lg-7">
+      <h2 class="h5">Price history</h2>
+      {% include 'staffdash/includes/price_table.html' with show_record=False %}
+    </div>
+  </div>
+{% endblock %}

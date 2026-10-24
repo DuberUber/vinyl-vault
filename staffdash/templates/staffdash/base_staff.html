@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{# Layout for the staff pages: a section menu showing only what the user's groups allow. #}
+{% block nav_search %}{% endblock %}
+{% block content %}
+  {% with current=request.resolver_match.url_name %}
+    <div class="row g-4">
+      <aside class="col-lg-2">
+        <p class="eyebrow mb-2">Staff</p>
+        <nav class="nav flex-row flex-lg-column gap-1 staff-nav" aria-label="Staff sections">
+          <a class="nav-link{% if current == 'home' %} active{% endif %}" href="{% url 'staffdash:home' %}">Overview</a>
+          {% if perms.catalog.change_record %}
+            <a class="nav-link{% if current in 'inventory record_add record_edit stock_adjust' %} active{% endif %}" href="{% url 'staffdash:inventory' %}">Inventory</a>
+          {% endif %}
+          {% if perms.catalog.view_stockadjustment %}
+            <a class="nav-link{% if current == 'stock_log' %} active{% endif %}" href="{% url 'staffdash:stock_log' %}">Stock log</a>
+          {% endif %}
+          {% if perms.catalog.change_price %}
+            <a class="nav-link{% if current in 'pricing price_update' %} active{% endif %}" href="{% url 'staffdash:pricing' %}">Pricing</a>
+          {% endif %}
+          {% if perms.catalog.view_pricechange %}
+            <a class="nav-link{% if current == 'price_log' %} active{% endif %}" href="{% url 'staffdash:price_log' %}">Price log</a>
+          {% endif %}
+          {% if perms.orders.view_order %}
+            <a class="nav-link{% if current in 'orders order_detail' %} active{% endif %}" href="{% url 'staffdash:orders' %}">Orders</a>
+          {% endif %}
+        </nav>
+      </aside>
+      <div class="col-lg-10">
+        {% block staff_content %}{% endblock %}
+      </div>
+    </div>
+  {% endwith %}
+{% endblock %}

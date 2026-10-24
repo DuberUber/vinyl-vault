@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block title %}Your cart{% endblock %}
+
+{% block content %}
+  <h1>Your cart</h1>
+  {% if not user.is_authenticated and lines %}
+    <p class="text-body-secondary">
+      <a href="{% url 'accounts:login' %}?next={% url 'orders:cart' %}">Log in</a> to save this cart to your account
+      and check out. Everything here comes with you.
+    </p>
+  {% endif %}
+
+  {% if not lines %}
+    <div class="alert alert-info">Your cart is empty.</div>
+    <a href="{% url 'catalog:record_list' %}" class="btn btn-primary">Start digging</a>
+  {% else %}
+    {% if short_lines %}
+      <div class="alert alert-warning" role="alert">
+        <strong>Stock has changed since you added {% if short_lines|length == 1 %}this record{% else %}these records{% endif %}:</strong>
+        <ul class="mb-1">
+          {% for line in short_lines %}
+            <li>"{{ line.record.title }}": {% if line.record.stock %}only {{ line.record.stock }} left and your cart has {{ line.quantity }}{% else %}now sold out{% endif %}.</li>
+          {% endfor %}
+        </ul>
+        Lower the quantity or remove {% if short_lines|length == 1 %}it{% else %}them{% endif %} to check out.
+      </div>
+    {% endif %}
+
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Record</th>
+            <th class="text-end">Price</th>
+            <th style="min-width: 10rem">Quantity</th>
+            <th class="text-end">Subtotal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for line in lines %}
+            <tr{% if line.is_short %} class="table-warning"{% endif %}>
+              <td>
+                <div class="d-flex gap-3 align-items-center">
+                  {% include 'catalog/includes/vinyl_art.html' with record=line.record size='sm' %}
+                  <div>
+                    <a href="{{ line.record.get_absolute_url }}">{{ line.record.title }}</a>
+                    <div class="small text-muted">{{ line.record.artist.name }} &middot; {{ line.record.get_format_display }} &middot; {{ line.record.condition }}</div>
+                    {% if line.is_short %}
+                      <div class="small text-danger fw-semibold">{% if line.record.stock %}Only {{ line.record.stock }} left{% else %}Sold out{% endif %}</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+              <td class="text-end">{{ line.record.price|currency }}</td>
+              <td>
+                <form method="post" action="{% url 'orders:cart_update' line.record.id %}" class="input-group input-group-sm">
+                  {% csrf_token %}
+                  <input type="number" name="quantity" value="{{ line.quantity }}" min="0"
+                         class="form-control" aria-label="Quantity of {{ line.record.title }}">
+                  <button type="submit" class="btn btn-outline-secondary">Update</button>
+                </form>
+              </td>
+              <td class="text-end">{{ line.subtotal|currency }}</td>
+              <td class="text-end">
+                <form method="post" action="{% url 'orders:cart_remove' line.record.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3" class="text-end">Total</th>
+            <th class="text-end">{{ total|currency }}</th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+      {% if short_lines %}
+        <button type="button" class="btn btn-primary" disabled>Proceed to checkout</button>
+      {% else %}
+        <a href="{% url 'orders:checkout' %}" class="btn btn-primary">Proceed to checkout</a>
+      {% endif %}
+      <a href="{% url 'catalog:record_list' %}" class="btn btn-outline-secondary">Keep digging</a>
+    </div>
+  {% endif %}
+{% endblock %}

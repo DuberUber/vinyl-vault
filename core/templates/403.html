@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Access denied{% endblock %}
+{% block content %}
+  <div class="py-5 text-center">
+    <p class="eyebrow">Error 403</p>
+    <h1>Staff only</h1>
+    <p class="lead">Your account doesn't have permission to open this page.</p>
+    <a href="{% url 'catalog:home' %}" class="btn btn-primary">Back to the shop</a>
+  </div>
+{% endblock %}

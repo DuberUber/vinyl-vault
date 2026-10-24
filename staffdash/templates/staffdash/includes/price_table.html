@@ -1,0 +1,23 @@
+{% load core_extras %}{# Price changes; pass show_record=False on a single record's page. #}
+<div class="table-responsive">
+  <table class="table table-sm align-middle">
+    <thead>
+      <tr><th>When</th>{% if show_record %}<th>Record</th>{% endif %}<th class="text-end">Was</th><th class="text-end">Now</th><th class="text-end">Bulk %</th><th>By</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      {% for change in changes %}
+        <tr>
+          <td class="text-nowrap">{{ change.created_at|date:"j M Y H:i" }}</td>
+          {% if show_record %}<td><a href="{% url 'staffdash:price_update' change.record_id %}">{{ change.record.title }}</a><div class="small text-muted">{{ change.record.artist.name }}</div></td>{% endif %}
+          <td class="text-end">{{ change.old_price|currency }}</td>
+          <td class="text-end {% if change.new_price > change.old_price %}text-success{% else %}text-danger{% endif %}">{{ change.new_price|currency }}</td>
+          <td class="text-end">{% if change.percent is not None %}{{ change.percent|signed }}%{% else %}—{% endif %}</td>
+          <td>{{ change.user.get_username|default:"—" }}</td>
+          <td>{{ change.note }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="text-body-secondary">No price changes logged yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,8 @@
+{% load core_extras %}{# Generated sleeve and disc, tinted from the title. Pass size="lg" for the record page or size="sm" for tables. #}
+<div class="vinyl-art{% if size %} vinyl-art-{{ size }}{% endif %}" style="--hue: {{ record.title|sleeve_hue }}" aria-hidden="true">
+  <div class="vinyl-disc"></div>
+  <div class="vinyl-sleeve">
+    <span class="vinyl-sleeve-artist">{{ record.artist.name }}</span>
+    <span class="vinyl-sleeve-title">{{ record.title }}</span>
+  </div>
+</div>

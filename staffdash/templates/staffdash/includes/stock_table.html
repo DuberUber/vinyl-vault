@@ -1,0 +1,23 @@
+{% load core_extras %}{# Stock adjustments; pass show_record=False on a single record's page. #}
+<div class="table-responsive">
+  <table class="table table-sm align-middle">
+    <thead>
+      <tr><th>When</th>{% if show_record %}<th>Record</th>{% endif %}<th class="text-end">Change</th><th class="text-end">After</th><th>Reason</th><th>By</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      {% for adjustment in adjustments %}
+        <tr>
+          <td class="text-nowrap">{{ adjustment.created_at|date:"j M Y H:i" }}</td>
+          {% if show_record %}<td><a href="{% url 'staffdash:stock_adjust' adjustment.record_id %}">{{ adjustment.record.title }}</a><div class="small text-muted">{{ adjustment.record.artist.name }}</div></td>{% endif %}
+          <td class="text-end {% if adjustment.change > 0 %}text-success{% else %}text-danger{% endif %}">{{ adjustment.change|signed }}</td>
+          <td class="text-end">{{ adjustment.stock_after }}</td>
+          <td>{{ adjustment.get_reason_display }}</td>
+          <td>{{ adjustment.user.get_username|default:"—" }}</td>
+          <td>{{ adjustment.note }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="text-body-secondary">No stock changes logged yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

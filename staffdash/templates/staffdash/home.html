@@ -1,0 +1,110 @@
+{% extends 'staffdash/base_staff.html' %}
+{% load core_extras %}
+{% block title %}Staff overview{% endblock %}
+{% block staff_content %}
+  <h1 class="h2">Overview</h1>
+
+  <section class="mb-4" aria-labelledby="sales-heading">
+    <h2 id="sales-heading" class="h5">Last {{ sales_days }} days</h2>
+    <div class="row row-cols-2 row-cols-md-4 g-3 mb-3">
+      <div class="col"><div class="stat-tile"><div class="stat-label">Revenue</div><div class="stat-value">{{ sales.revenue|default:0|currency }}</div></div></div>
+      <div class="col"><div class="stat-tile"><div class="stat-label">Paid orders</div><div class="stat-value">{{ sales.orders }}</div></div></div>
+      <div class="col"><div class="stat-tile"><div class="stat-label">Records sold</div><div class="stat-value">{{ sales.units|default:0 }}</div></div></div>
+      <div class="col"><div class="stat-tile"><div class="stat-label">Average order</div><div class="stat-value">{{ sales.average|default:0|currency }}</div></div></div>
+    </div>
+    <div class="card card-body panel">
+      <div class="d-flex justify-content-between small text-body-secondary">
+        <span>Daily revenue (paid and shipped orders)</span>
+        <span>{{ pending.count }} order{{ pending.count|pluralize }} awaiting payment{% if pending.value %} ({{ pending.value|currency }}){% endif %}</span>
+      </div>
+      <div class="sales-chart" role="img" aria-label="Daily revenue for the last {{ sales_days }} days">
+        {% for day in daily_sales %}
+          <div class="bar{% if not day.revenue %} empty{% endif %}" style="height: {{ day.percent }}%"
+               title="{{ day.day|date:'j M' }}: {{ day.revenue|currency }}"></div>
+        {% endfor %}
+      </div>
+      <div class="d-flex justify-content-between small text-body-secondary mt-1">
+        <span>{{ daily_sales.0.day|date:"j M" }}</span><span>Today</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="row g-4">
+    <section class="col-xl-6" aria-labelledby="low-heading">
+      <div class="card panel h-100">
+        <div class="card-header d-flex justify-content-between">
+          <h2 id="low-heading" class="h6 mb-0">Low stock (≤ {{ low_stock_threshold }})</h2>
+          {% if perms.catalog.change_record %}<a href="{% url 'staffdash:inventory' %}?low=1" class="small">All low stock</a>{% endif %}
+        </div>
+        <ul class="list-group list-group-flush">
+          {% for record in low_stock %}
+            <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+              <span>{{ record.artist.name }} – <a href="{{ record.get_absolute_url }}">{{ record.title }}</a>
+                <span class="d-block small text-muted catno">{{ record.catalogue_number }}</span></span>
+              <span class="d-flex align-items-center gap-2">
+                <span class="badge {% if record.stock %}badge-news{% else %}text-bg-danger{% endif %}">{{ record.stock }} left</span>
+                {% if perms.catalog.adjust_stock %}<a href="{% url 'staffdash:stock_adjust' record.id %}" class="btn btn-sm btn-outline-secondary">Restock</a>{% endif %}
+              </span>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-body-secondary">Everything is well stocked.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+    <section class="col-xl-6" aria-labelledby="recent-heading">
+      <div class="card panel h-100">
+        <div class="card-header d-flex justify-content-between">
+          <h2 id="recent-heading" class="h6 mb-0">Recent orders</h2>
+          {% if perms.orders.view_order %}<a href="{% url 'staffdash:orders' %}" class="small">All orders</a>{% endif %}
+        </div>
+        <ul class="list-group list-group-flush">
+          {% for order in recent_orders %}
+            <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+              <span>
+                {% if perms.orders.view_order %}<a href="{% url 'staffdash:order_detail' order.pk %}">{{ order.number }}</a>{% else %}{{ order.number }}{% endif %}
+                <span class="small text-muted">{{ order.user.get_username }} &middot; {{ order.created_at|date:"j M" }}</span>
+              </span>
+              <span class="d-flex align-items-center gap-2">{% include 'orders/includes/status_badge.html' %} <span>{{ order.total|currency }}</span></span>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-body-secondary">No orders yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+    <section class="col-xl-6" aria-labelledby="wished-heading">
+      <div class="card panel h-100">
+        <div class="card-header"><h2 id="wished-heading" class="h6 mb-0">Most wishlisted</h2></div>
+        <ul class="list-group list-group-flush">
+          {% for record in most_wishlisted %}
+            <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+              <span>{{ record.artist.name }} – <a href="{{ record.get_absolute_url }}">{{ record.title }}</a></span>
+              <span class="text-nowrap small">♥ {{ record.wishes }} &middot; {{ record.stock }} in stock</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-body-secondary">No wishlists yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+    <section class="col-xl-6" aria-labelledby="top-heading">
+      <div class="card panel h-100">
+        <div class="card-header"><h2 id="top-heading" class="h6 mb-0">Best sellers, last {{ sales_days }} days</h2></div>
+        <ul class="list-group list-group-flush">
+          {% for seller in top_sellers %}
+            <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
+              <span>{{ seller.artist }} – {{ seller.title }}</span>
+              <span class="text-nowrap small">{{ seller.units }} sold &middot; {{ seller.revenue|currency }}</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-body-secondary">No sales in this period.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  </div>
+{% endblock %}

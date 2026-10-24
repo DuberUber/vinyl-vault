@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ artist.name }}{% endblock %}
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'catalog:record_list' %}">Records</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ artist.name }}</li>
+    </ol>
+  </nav>
+  <p class="eyebrow mb-1">Artist</p>
+  <h1>{{ artist.name }}</h1>
+  {% if artist.bio %}<p class="lead col-lg-8">{{ artist.bio }}</p>{% endif %}
+
+  <h2 class="h4 mt-4">Records</h2>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+    {% for record in records %}
+      <div class="col">{% include 'catalog/includes/record_card.html' %}</div>
+    {% empty %}
+      <div class="col-12"><div class="alert alert-secondary">Nothing by this artist in the shop yet.</div></div>
+    {% endfor %}
+  </div>
+{% endblock %}

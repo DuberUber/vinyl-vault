@@ -1,0 +1,8 @@
+{% extends 'staffdash/base_staff.html' %}
+{% block title %}Stock log{% endblock %}
+{% block staff_content %}
+  <h1 class="h2">Stock log</h1>
+  <p class="text-body-secondary">Every change to stock: deliveries, corrections, damage, sales at checkout and restocks from cancelled orders.</p>
+  {% include 'staffdash/includes/stock_table.html' with show_record=True %}
+  {% include 'core/includes/pagination.html' %}
+{% endblock %}

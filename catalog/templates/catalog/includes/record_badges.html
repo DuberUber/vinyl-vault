@@ -1,0 +1,3 @@
+{# Format, grading and rarity badges for a record. #}<span class="badge badge-format">{{ record.get_format_display }}</span>
+<span class="badge badge-grade" title="Vinyl {{ record.get_media_grade_display }}, sleeve {{ record.get_sleeve_grade_display }}">{{ record.condition }}</span>
+{% if record.is_rare %}<span class="badge badge-rare">Rare</span>{% endif %}

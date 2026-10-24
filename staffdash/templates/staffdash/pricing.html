@@ -1,0 +1,53 @@
+{% extends 'staffdash/base_staff.html' %}
+{% load core_extras %}
+{% block title %}Pricing{% endblock %}
+{% block staff_content %}
+  <h1 class="h2">Pricing</h1>
+
+  <div class="row g-4">
+    <div class="col-xl-4 order-xl-2">
+      <form method="post" action="{% url 'staffdash:pricing' %}" class="card card-body panel" novalidate>
+        <h2 class="h5">Bulk change</h2>
+        <p class="small text-body-secondary">Raise or cut every price in a genre, a format, or both. Each change is logged.</p>
+        {% csrf_token %}
+        {% with form=bulk_form %}{% include 'core/includes/form_fields.html' %}{% endwith %}
+        <button type="submit" class="btn btn-primary">Apply to matching records</button>
+      </form>
+    </div>
+
+    <div class="col-xl-8 order-xl-1">
+      <form method="get" class="d-flex gap-2 mb-3" role="search">
+        <label for="pricing-q" class="visually-hidden">Search</label>
+        <input id="pricing-q" type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Title, artist, label or cat. no.">
+        <button type="submit" class="btn btn-outline-secondary">Search</button>
+      </form>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead><tr><th>Record</th><th>Genre / format</th><th style="min-width: 12rem">Price</th></tr></thead>
+          <tbody>
+            {% for record in records %}
+              <tr>
+                <td>
+                  <a href="{% url 'staffdash:price_update' record.id %}">{{ record.title }}</a>
+                  <div class="small text-muted">{{ record.artist.name }} &middot; {{ record.condition }}</div>
+                </td>
+                <td>{{ record.genre.name }}<div class="small text-muted">{{ record.get_format_display }}</div></td>
+                <td>
+                  <form method="post" action="{% url 'staffdash:price_update' record.id %}" class="input-group input-group-sm">
+                    {% csrf_token %}
+                    <input type="number" name="price" value="{{ record.price }}" min="0" step="0.01" class="form-control"
+                           aria-label="New price for {{ record.title }}">
+                    <button type="submit" class="btn btn-outline-secondary">Set</button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-body-secondary">No records match.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include 'core/includes/pagination.html' %}
+    </div>
+  </div>
+{% endblock %}

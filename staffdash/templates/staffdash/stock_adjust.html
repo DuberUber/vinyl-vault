@@ -1,0 +1,24 @@
+{% extends 'staffdash/base_staff.html' %}
+{% load core_extras %}
+{% block title %}Stock: {{ record.title }}{% endblock %}
+{% block staff_content %}
+  <h1 class="h2 mb-1">{{ record.title }}</h1>
+  <p class="text-body-secondary">{{ record.artist.name }} &middot; {{ record.label }} <span class="catno">{{ record.catalogue_number }}</span> &middot; {{ record.get_format_display }}</p>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <form method="post" class="card card-body panel" novalidate>
+        <h2 class="h5">Adjust stock</h2>
+        <p>In stock now: <strong class="fs-4">{{ record.stock }}</strong></p>
+        {% csrf_token %}
+        {% include 'core/includes/form_fields.html' %}
+        <button type="submit" class="btn btn-primary">Save adjustment</button>
+      </form>
+    </div>
+    <div class="col-lg-7">
+      <h2 class="h5">Recent changes</h2>
+      {% include 'staffdash/includes/stock_table.html' with show_record=False %}
+      {% if perms.catalog.view_stockadjustment %}<a href="{% url 'staffdash:stock_log' %}">Full stock log &rarr;</a>{% endif %}
+    </div>
+  </div>
+{% endblock %}

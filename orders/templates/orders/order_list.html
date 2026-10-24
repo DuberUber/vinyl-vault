@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load core_extras %}
+{% block title %}Your orders{% endblock %}
+{% block content %}
+  <h1>Your orders</h1>
+  {% if orders %}
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr><th>Order</th><th>Placed</th><th>Records</th><th>Status</th><th class="text-end">Total</th></tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+            <tr>
+              <td><a href="{{ order.get_absolute_url }}">{{ order.number }}</a></td>
+              <td>{{ order.created_at|date:"j M Y" }}</td>
+              <td>{{ order.items.all|length }}</td>
+              <td>{% include 'orders/includes/status_badge.html' %}</td>
+              <td class="text-end">{{ order.total|currency }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include 'core/includes/pagination.html' %}
+  {% else %}
+    <div class="alert alert-info">You haven't placed any orders yet.</div>
+    <a href="{% url 'catalog:record_list' %}" class="btn btn-primary">Browse records</a>
+  {% endif %}
+{% endblock %}

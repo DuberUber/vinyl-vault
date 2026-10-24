@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block title %}{{ record.artist.name }} – {{ record.title }}{% endblock %}
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'catalog:record_list' %}">Records</a></li>
+      <li class="breadcrumb-item"><a href="{{ record.genre.get_absolute_url }}">{{ record.genre.name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ record.title }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4 g-xl-5">
+    <div class="col-md-6 col-lg-4">
+      {% include 'catalog/includes/vinyl_art.html' with size='lg' %}
+    </div>
+
+    <div class="col-md-6 col-lg-5">
+      <p class="eyebrow mb-1">{{ record.genre.name }}</p>
+      <h1 class="mb-1">{{ record.title }}</h1>
+      <p class="lead"><a href="{{ record.artist.get_absolute_url }}">{{ record.artist.name }}</a></p>
+      <p class="d-flex flex-wrap gap-1">{% include 'catalog/includes/record_badges.html' %}</p>
+      <dl class="row spec-list">
+        <dt class="col-sm-4">Label</dt>
+        <dd class="col-sm-8">{{ record.label }}</dd>
+        <dt class="col-sm-4">Catalogue no.</dt>
+        <dd class="col-sm-8 catno">{{ record.catalogue_number }}</dd>
+        <dt class="col-sm-4">Format</dt>
+        <dd class="col-sm-8">{{ record.get_format_display }}</dd>
+        <dt class="col-sm-4">Released</dt>
+        <dd class="col-sm-8">{{ record.release_year|default:"Unknown" }}</dd>
+        <dt class="col-sm-4">Vinyl grade</dt>
+        <dd class="col-sm-8">{{ record.get_media_grade_display }}</dd>
+        <dt class="col-sm-4">Sleeve grade</dt>
+        <dd class="col-sm-8">{{ record.get_sleeve_grade_display }}</dd>
+      </dl>
+      {% if record.pressing_notes %}
+        <h2 class="h5">Pressing notes</h2>
+        <p>{{ record.pressing_notes|linebreaksbr }}</p>
+      {% endif %}
+      {% if record.artist.bio %}
+        <h2 class="h5">About {{ record.artist.name }}</h2>
+        <p>{{ record.artist.bio }}</p>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-3">
+      <div class="card card-body buy-box">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="price fs-2">{{ record.price|currency }}</div>
+          {% include 'catalog/includes/heart_button.html' %}
+        </div>
+        {% if record.in_stock %}
+          <p class="text-success mb-3">{% if record.stock == 1 %}Last copy in stock{% else %}{{ record.stock }} in stock{% endif %}</p>
+          <form method="post" action="{% url 'orders:cart_add' record.id %}" class="d-flex gap-2">
+            {% csrf_token %}
+            <label for="quantity" class="visually-hidden">Quantity</label>
+            <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ record.stock }}"
+                   class="form-control" style="max-width: 5rem">
+            <button type="submit" class="btn btn-primary flex-grow-1">Add to cart</button>
+          </form>
+        {% else %}
+          <p class="text-danger mb-2">Sold out</p>
+          <p class="small text-body-secondary mb-0">Save it to your wishlist and we'll flag it when a copy comes back in.</p>
+        {% endif %}
+      </div>
+      {% if perms.catalog.change_record or perms.catalog.adjust_stock or perms.catalog.change_price %}
+        <div class="card card-body panel mt-3">
+          <p class="eyebrow mb-2">Staff</p>
+          <div class="d-grid gap-2">
+            {% if perms.catalog.change_record %}<a href="{% url 'staffdash:record_edit' record.id %}" class="btn btn-sm btn-outline-secondary">Edit details</a>{% endif %}
+            {% if perms.catalog.adjust_stock %}<a href="{% url 'staffdash:stock_adjust' record.id %}" class="btn btn-sm btn-outline-secondary">Adjust stock</a>{% endif %}
+            {% if perms.catalog.change_price %}<a href="{% url 'staffdash:price_update' record.id %}" class="btn btn-sm btn-outline-secondary">Change price</a>{% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if more_by_artist %}
+    <section class="mt-5" aria-labelledby="more-heading">
+      <h2 id="more-heading" class="h4">More from {{ record.artist.name }}</h2>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        {% for record in more_by_artist %}
+          <div class="col">{% include 'catalog/includes/record_card.html' %}</div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

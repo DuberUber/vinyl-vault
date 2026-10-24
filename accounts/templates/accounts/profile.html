@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Your profile{% endblock %}
+{% block content %}
+  <h1>Your profile</h1>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <form method="post" class="card card-body panel" novalidate>
+        <h2 class="h5">Account details</h2>
+        <p class="text-muted">Username: <strong>{{ user.username }}</strong></p>
+        {% csrf_token %}
+        {% include 'core/includes/form_fields.html' %}
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </form>
+    </div>
+    <div class="col-lg-5">
+      <div class="list-group">
+        <a class="list-group-item list-group-item-action" href="{% url 'wishlist:detail' %}">My wishlist</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'orders:list' %}">Order history</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'orders:cart' %}">Saved cart</a>
+        {% if show_staff_link %}<a class="list-group-item list-group-item-action" href="{% url 'staffdash:home' %}">Staff dashboard</a>{% endif %}
+        <a class="list-group-item list-group-item-action" href="{% url 'accounts:password_change' %}">Change password</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

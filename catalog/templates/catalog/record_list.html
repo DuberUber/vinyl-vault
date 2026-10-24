@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if genre %}{{ genre.name }} records{% else %}All records{% endif %}{% endblock %}
+
+{% block nav_search %}{% endblock %}
+
+{% block content %}
+  {% if genre %}
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'catalog:record_list' %}">Records</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ genre.name }}</li>
+      </ol>
+    </nav>
+  {% endif %}
+
+  <div class="row g-4">
+    <aside class="col-lg-3">
+      <button class="btn btn-outline-secondary w-100 d-lg-none mb-2" type="button"
+              data-bs-toggle="collapse" data-bs-target="#filters" aria-expanded="false" aria-controls="filters">
+        Search &amp; filters
+      </button>
+      <form method="get" action="{% if genre %}{{ genre.get_absolute_url }}{% else %}{% url 'catalog:record_list' %}{% endif %}" id="filters"
+            class="card card-body filter-panel collapse d-lg-block{% if request.GET %} show{% endif %}" novalidate>
+        <h2 class="h5">Dig the crates</h2>
+        {% include 'core/includes/form_fields.html' %}
+        <button type="submit" class="btn btn-primary w-100">Search</button>
+        <a href="{% if genre %}{{ genre.get_absolute_url }}{% else %}{% url 'catalog:record_list' %}{% endif %}" class="btn btn-link w-100">Clear filters</a>
+      </form>
+    </aside>
+
+    <section class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-baseline mb-3">
+        <h1 class="h3 mb-0">{% if genre %}{{ genre.name }}{% else %}All records{% endif %}</h1>
+        <span class="text-body-secondary">{{ paginator.count }} record{{ paginator.count|pluralize }}</span>
+      </div>
+
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
+        {% for record in records %}
+          <div class="col">{% include 'catalog/includes/record_card.html' %}</div>
+        {% empty %}
+          <div class="col-12"><div class="alert alert-secondary">No records match your search. Try fewer filters.</div></div>
+        {% endfor %}
+      </div>
+
+      <div class="mt-4">{% include 'core/includes/pagination.html' %}</div>
+    </section>
+  </div>
+{% endblock %}

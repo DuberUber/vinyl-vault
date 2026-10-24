@@ -1,0 +1,8 @@
+{% extends 'staffdash/base_staff.html' %}
+{% block title %}Price log{% endblock %}
+{% block staff_content %}
+  <h1 class="h2">Price log</h1>
+  <p class="text-body-secondary">Every price change, single or bulk. Bulk changes show the percentage applied.</p>
+  {% include 'staffdash/includes/price_table.html' with show_record=True %}
+  {% include 'core/includes/pagination.html' %}
+{% endblock %}

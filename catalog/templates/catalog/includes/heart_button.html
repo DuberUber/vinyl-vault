@@ -1,0 +1,12 @@
+{# Save/unsave toggle. Works as a plain form; core/js/shop.js upgrades it to an in-place toggle. #}
+<form method="post" action="{% url 'wishlist:toggle' record.id %}" data-wishlist-toggle class="d-inline">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  {% if record.id in wishlisted_ids %}
+    <button type="submit" class="heart-btn" aria-pressed="true" aria-label="Remove from wishlist" title="Remove from wishlist">
+  {% else %}
+    <button type="submit" class="heart-btn" aria-pressed="false" aria-label="Save to wishlist" title="Save to wishlist">
+  {% endif %}
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>
+  </button>
+</form>

@@ -1,0 +1,23 @@
+{% load core_extras %}
+<article class="card record-card h-100">
+  <div class="p-3 pb-0">{% include 'catalog/includes/vinyl_art.html' %}</div>
+  <div class="card-body d-flex flex-column">
+    <p class="artist mb-1">{{ record.artist.name }}</p>
+    <h2 class="card-title mb-1">
+      <a class="stretched-link" href="{{ record.get_absolute_url }}">{{ record.title }}</a>
+    </h2>
+    <p class="small text-body-secondary mb-2">{{ record.label }} &middot; <span class="catno">{{ record.catalogue_number }}</span>{% if record.release_year %} &middot; {{ record.release_year }}{% endif %}</p>
+    <p class="d-flex flex-wrap gap-1 mb-auto">{% include 'catalog/includes/record_badges.html' %}</p>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div>
+        <span class="price">{{ record.price|currency }}</span>
+        {% if record.in_stock %}
+          <small class="d-block text-body-secondary">{% if record.stock == 1 %}Last copy{% else %}{{ record.stock }} in stock{% endif %}</small>
+        {% else %}
+          <small class="d-block text-danger">Sold out</small>
+        {% endif %}
+      </div>
+      <div class="card-actions">{% include 'catalog/includes/heart_button.html' %}</div>
+    </div>
+  </div>
+</article>

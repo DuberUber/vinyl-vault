@@ -1,0 +1,26 @@
+{% load core_extras %}{# The order's lines as snapshotted at checkout. #}
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr><th>Record</th><th>Format</th><th>Condition</th><th class="text-end">Price</th><th class="text-end">Qty</th><th class="text-end">Subtotal</th></tr>
+    </thead>
+    <tbody>
+      {% for item in order.items.all %}
+        <tr>
+          <td>
+            {% if item.record_id %}<a href="{% url 'catalog:record_detail' item.record_id %}">{{ item.title }}</a>{% else %}{{ item.title }}{% endif %}
+            <div class="small text-muted">{{ item.artist }}</div>
+          </td>
+          <td>{{ item.format }}</td>
+          <td>{{ item.condition }}</td>
+          <td class="text-end">{{ item.unit_price|currency }}</td>
+          <td class="text-end">{{ item.quantity }}</td>
+          <td class="text-end">{{ item.subtotal|currency }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr><th colspan="5" class="text-end">Total</th><th class="text-end">{{ order.total|currency }}</th></tr>
+    </tfoot>
+  </table>
+</div>

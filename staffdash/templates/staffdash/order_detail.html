@@ -1,0 +1,51 @@
+{% extends 'staffdash/base_staff.html' %}
+{% block title %}Order {{ order.number }}{% endblock %}
+{% block staff_content %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h2 mb-0">Order {{ order.number }}</h1>
+    <span class="fs-5">{% include 'orders/includes/status_badge.html' %}</span>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-xl-8">
+      {% include 'orders/includes/order_items.html' %}
+    </div>
+    <div class="col-xl-4">
+      <div class="card card-body panel mb-3">
+        <h2 class="h6">Customer</h2>
+        <p class="mb-2">{{ order.full_name }} ({{ order.user.get_username }})<br>{{ order.email }}</p>
+        <h2 class="h6">Ship to</h2>
+        <p class="mb-0">{{ order.shipping_address|linebreaksbr }}</p>
+      </div>
+      <div class="card card-body panel mb-3">
+        <h2 class="h6">Timeline</h2>
+        <ul class="list-unstyled small mb-0">
+          <li>Placed {{ order.created_at|date:"j M Y H:i" }}</li>
+          {% if order.paid_at %}<li>Paid {{ order.paid_at|date:"j M Y H:i" }}</li>{% endif %}
+          {% if order.shipped_at %}<li>Shipped {{ order.shipped_at|date:"j M Y H:i" }}</li>{% endif %}
+          {% if order.cancelled_at %}<li>Cancelled {{ order.cancelled_at|date:"j M Y H:i" }}</li>{% endif %}
+        </ul>
+      </div>
+      {% if perms.orders.manage_orders %}
+        <div class="d-grid gap-2">
+          {% if order.can_mark_paid %}
+            <form method="post" action="{% url 'staffdash:order_action' order.pk 'paid' %}" class="d-grid">
+              {% csrf_token %}<button type="submit" class="btn btn-success">Mark as paid</button>
+            </form>
+          {% endif %}
+          {% if order.can_mark_shipped %}
+            <form method="post" action="{% url 'staffdash:order_action' order.pk 'shipped' %}" class="d-grid">
+              {% csrf_token %}<button type="submit" class="btn btn-success">Mark as shipped</button>
+            </form>
+          {% endif %}
+          {% if order.can_cancel %}
+            <form method="post" action="{% url 'staffdash:order_action' order.pk 'cancel' %}" class="d-grid">
+              {% csrf_token %}<button type="submit" class="btn btn-outline-danger">Cancel and restock</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <a href="{% url 'staffdash:orders' %}" class="btn btn-link px-0 mt-3">&larr; All orders</a>
+{% endblock %}

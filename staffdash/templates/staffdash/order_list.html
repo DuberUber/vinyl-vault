@@ -1,0 +1,32 @@
+{% extends 'staffdash/base_staff.html' %}
+{% load core_extras %}
+{% block title %}Orders{% endblock %}
+{% block staff_content %}
+  <h1 class="h2">Orders</h1>
+  <ul class="nav nav-pills mb-3 staff-nav">
+    <li class="nav-item"><a class="nav-link{% if not current_status %} active{% endif %}" href="{% url 'staffdash:orders' %}">All</a></li>
+    {% for value, label in statuses %}
+      <li class="nav-item"><a class="nav-link{% if current_status == value %} active{% endif %}" href="?status={{ value }}">{{ label }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th class="text-end">Records</th><th>Status</th><th class="text-end">Total</th></tr></thead>
+      <tbody>
+        {% for order in orders %}
+          <tr>
+            <td><a href="{% url 'staffdash:order_detail' order.pk %}">{{ order.number }}</a></td>
+            <td>{{ order.full_name }}<div class="small text-muted">{{ order.user.get_username }}</div></td>
+            <td>{{ order.created_at|date:"j M Y" }}</td>
+            <td class="text-end">{{ order.units|default:0 }}</td>
+            <td>{% include 'orders/includes/status_badge.html' %}</td>
+            <td class="text-end">{{ order.total|currency }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="text-body-secondary">No orders here.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include 'core/includes/pagination.html' %}
+{% endblock %}
